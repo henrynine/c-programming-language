@@ -5,7 +5,7 @@
 unsigned getbits(unsigned x, int p, int n);
 unsigned setbits(unsigned x, int p, int n, unsigned y);
 unsigned invert(unsigned x, int p, int n);
-unsigned rightort(unsigned x, int n);
+unsigned rightrot(int x, int n);
 
 
 int main() {
@@ -16,7 +16,12 @@ int main() {
   // should be 83
   printf("invert(1111 0000, 5, 4) = %u\n", invert(0xF0, 5, 4));
   // should be 204
-  //printf("rightrot(1100 1010, 2) = %u\n", invert(0xCB));
+  printf("rightrot(1100 1010, 2) = %u\n", rightrot(0xCA, 2));
+  // 0000 0000 0000 0000 0000 0000 0000 0000
+  // 0000 0000 0000 0000 0000 0000 0110 0101
+  // 0100 0000 0000 0000 0000 0000 0001 1001
+  // should be 1073741849
+  printf("sizeof(unsigned) = %lu\n", sizeof(unsigned));
 }
 
 /* getbits:  get n bits from position p */
@@ -71,9 +76,18 @@ unsigned invert(unsigned x, int p, int n) {
 }
 
 /* rightrot: returns the value of integer x rotated to the right by n
-             positions /
+             positions */
 unsigned rightrot(int x, int n) {
-  unsigned as_bin;
+  //sizeof(unsigned) is the number of bytes in an unsigned int
+  unsigned as_bin, left_chunk, right_chunk;
   as_bin = (unsigned) x;
-  printf("%u", as_bin);
-}*/
+  // printf("as_bin: %u\n", as_bin);
+  // should be and is 203
+  right_chunk = getbits(x, (n-1), n);
+  left_chunk = x >> n;
+  printf("right_chunk: %u\nleft_chunk: %u\n", right_chunk, left_chunk);
+  // chunks are correct, now assemble with chunks flipped
+  left_chunk <<= (8*(sizeof(unsigned)) - n - 1);
+  return right_chunk | left_chunk;
+  // return left_chunk;
+}
