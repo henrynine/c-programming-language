@@ -81,13 +81,11 @@ unsigned rightrot(int x, int n) {
   //sizeof(unsigned) is the number of bytes in an unsigned int
   unsigned as_bin, left_chunk, right_chunk;
   as_bin = (unsigned) x;
-  // printf("as_bin: %u\n", as_bin);
-  // should be and is 203
+
   right_chunk = getbits(x, (n-1), n);
   left_chunk = x >> n;
-  printf("right_chunk: %u\nleft_chunk: %u\n", right_chunk, left_chunk);
-  // chunks are correct, now assemble with chunks flipped
+  /* make the new left chunk based on the size of an unsigned int
+     on the system */
   left_chunk <<= (8*(sizeof(unsigned)) - n - 1);
   return right_chunk | left_chunk;
-  // return left_chunk;
 }
