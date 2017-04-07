@@ -3,9 +3,10 @@
 #define MAXLENGTH 10000
 
 void expand(char s1[], char s2[]);
+int is_expansion(char one, char two, char three);
 
 int main() {
-  char test[] = "hi there: a-b-c a-z0-9 -a-z-";
+  char test[] = "hi there: a-b-c-d a-z0-9 -a-z- a-";
   char new[MAXLENGTH];
   int i;
 
@@ -21,24 +22,32 @@ int main() {
 }
 
 /* expand: expands shorthand notations like a-z in string s1 into the
-           equivalent complete list abc...xyz in s2.
-*/
+           equivalent complete list abc...xyz in s2. */
 void expand(char s1[], char s2[]) {
   char c;
   int i; // index in s1
   int j; // index in s2
   int k; // transcription index
-  for (i = j = 0; (c = s1[i]) != '\0' && j < MAXLENGTH; i++) {
-    if (c == '-' && isalnum(s1[i-1]) && isalnum(s1[i+1])) {
+  for (i = j = 0; s1[i] != '\0' && j < MAXLENGTH; i++) {
+    if (is_expansion(s1[i], s1[i+1], s1[i+2])) {
       // expand
-      if (isalpha(s1[i-1]) == isalpha(s1[i+1])) { // share dig/alpha status
-        for (k = s1[i-1]; k <= s1[i+1]; k++)
+      if (isalpha(s1[i]) == isalpha(s1[i+2])) { // share dig/alpha status
+        for (k = s1[i]; k <= s1[i+2]; k++)
           s2[j++] = k;
       }
-      i++; // skip over next character, dash is skipped by not printing
-      // still double prints first character shit need to change order
+      /* only advance beyond the end of the expansion if the final character
+         does not begin a new expansion */
+      if (is_expansion(s1[i+2], s1[i+3], s1[i+4]))
+        i++;
+      else
+        i+=2;
     }
     else
-      s2[j++] = c; // no expansion
+      s2[j++] = s1[i]; // no expansion
   }
+}
+
+/* is_expansion: checks if a three character sequence forms an expansion */
+int is_expansion(char a, char b, char c) {
+  return ((isalpha(a) && isalpha(c)) || (isdigit(a) && isdigit(c))) && b == '-';
 }
