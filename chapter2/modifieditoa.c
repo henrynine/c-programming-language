@@ -7,6 +7,7 @@
 
 void new_itoa(int n, char s[]);
 void old_itoa(int n, char s[]);
+void padded_itoa(int n, char s[], int m);
 char *strrev(char *str);
 
 int main() {
@@ -47,6 +48,13 @@ int main() {
   }
   new_itoa(test3, s);
   printf("new testing %d: %s\n", test3, s);
+
+  // reinitialize s
+  for (i = 0; i < MAXLENGTH; i++) {
+    s[i] = '\0';
+  }
+  padded_itoa(test2, s, 15);
+  printf("padded %d: %s\n", test2, s);
 }
 
 
@@ -89,6 +97,22 @@ void old_itoa(int n, char s[])
       s[i++] = '-';
     s[i] = '\0';
     strrev(s);
+}
+
+/* padded_itoa: like itoa, but m is the minimum field width: the converted
+                number will be padded with blanks on the left if needed */
+void padded_itoa(int n, char s[], int m)
+{
+  int i;
+  new_itoa(n, s);
+  if ((i = strlen(s)) < m) {
+    // string is too short
+    strrev(s);
+    for (i; i < m; i++)
+      s[i] = ' ';
+    s[i] = '\0';
+    strrev(s);
+  }
 }
 
 /*
