@@ -1,0 +1,9 @@
++, -, *, /, %: standard symbols
+p: print the stack
+d: duplicate the stack
+s: swap the top two stack elements
+c: clear the stack
+i: sin
+o: cos
+e: power
+r: root

@@ -1,12 +1,27 @@
+/* ADD:
+       * list of commands
+       */
 #include <stdio.h>
 #include <stdlib.h> /* for atof() */
+#include <ctype.h>
 
 #define MAXOP 100 // max size of operand or operator
 #define NUMBER '0' // signal that a number was found
+#define MAXVAL 100 // maximum depth of val stack
+#define BUFSIZE 100 // maximum size of buffer
 
-int getop(char []);
-void push(double);
-double pop(void);
+char buf[BUFSIZE]; // buffer for ungetch
+int bufp = 0; // next free position in buf
+int sp = 0; // next free stack position
+double val[MAXVAL]; // stack
+int getch(void); // buffered character retrieval
+void ungetch(int); // buffered character 
+int getop(char []); // get op to handle
+void push(double); // push onto val stack
+double pop(void); // pop from val stack
+void printstack(void); // print the whole stack
+void dupstack(void); // duplicate the stack
+void clearstack(void); // clear the stack
 
 /* reverse Polish calculator */
 int main() 
@@ -15,6 +30,7 @@ int main()
   double op2;
   char s[MAXOP];
 
+  // printf("Type h to receive a list of commands\n");
   while ((type = getop(s)) != EOF) {
     double i, top, next;
     switch (type) {
@@ -45,25 +61,20 @@ int main()
       else
         printf("error: zero divisor\n");
       break;
-    case 'p': // print top stack elements without popping
-      top = pop();
-      next = pop();
-      printf("Top two stack elements: %f, %f\n", top, next);
-      push(next);
-      push(top);
+    case 'p': // print the stack
+      printstack(); 
       break;
-    case 'd': // duplicate the top two stack elements
-      top = pop();
-      next = pop();
-      for(i = 0; i < 2; i++)
-        push(next);
-	push(top);
+    case 'd': // duplicate the stack 
+      dupstack();
       break;
     case 's': // swap the top two stack elements
       top = pop();
       next = pop();
       push(top);
       push(next);
+      break;
+    case 'c': // clear the stack
+      clearstack();
       break;
     case '\n':
       printf("\t%.8g\n", pop());
@@ -75,11 +86,6 @@ int main()
   }
   return 0;
 }
-
-#define MAXVAL 100 // maximum depth of val stack
-
-int sp = 0; // next free stack position
-double val[MAXVAL];
 
 /* push: push f onto value stack */
 void push(double f)
@@ -101,6 +107,32 @@ double pop(void)
   }
 }
 
+// print the whole stack
+void printstack(void)
+{
+  int i;
+  printf("stack: ");
+  for (i = 0; i < sp; i++) {
+    printf("%.2f ", val[i]); 
+  }
+  printf("\n");
+}
+
+// duplicate the stack
+void dupstack(void) {
+  int i, og_sp = sp;
+  for (i = 0; i < og_sp; i++)
+    push(val[i]);
+}
+
+// clear the stack
+void clearstack(void) {
+  int i;
+  for (i = 0; i < MAXVAL; i++) {
+    val[i] = 0.0;
+  }
+  sp = 0;
+}
 #include <ctype.h>
 
 int getch(void);
@@ -131,12 +163,7 @@ int getop(char s[])
   return NUMBER;
 }
 
-#define BUFSIZE 100
-
-char buf[BUFSIZE]; // buffer for ungetch
-int bufp = 0; // next free position in buf
-
-int getch(void) // get a (possibly pushed-back character 
+int getch(void) // get a (possibly pushed-back) character 
 {
   return (bufp > 0) ? buf[--bufp] : getchar();
 }
