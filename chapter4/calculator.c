@@ -16,6 +16,7 @@ int main()
   char s[MAXOP];
 
   while ((type = getop(s)) != EOF) {
+    double i, top, next;
     switch (type) {
     case NUMBER:
       push(atof(s));
@@ -43,6 +44,26 @@ int main()
         push(((int)pop()) % ((int)(op2)));
       else
         printf("error: zero divisor\n");
+      break;
+    case 'p': // print top stack elements without popping
+      top = pop();
+      next = pop();
+      printf("Top two stack elements: %f, %f\n", top, next);
+      push(next);
+      push(top);
+      break;
+    case 'd': // duplicate the top two stack elements
+      top = pop();
+      next = pop();
+      for(i = 0; i < 2; i++)
+        push(next);
+	push(top);
+      break;
+    case 's': // swap the top two stack elements
+      top = pop();
+      next = pop();
+      push(top);
+      push(next);
       break;
     case '\n':
       printf("\t%.8g\n", pop());
