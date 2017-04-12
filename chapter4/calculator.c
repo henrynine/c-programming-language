@@ -88,15 +88,17 @@ void ungetch(int);
 /* getop: get next character or numeric operand */
 int getop(char s[])
 {
-  int i, c;
+  int i, c, d;
 
   while((s[0] = c = getch()) == ' ' || c == '\t')
     ;
   s[1] = '\0';
-  if (!isdigit(c) && c != '.')
+  if (c == '-' && isdigit(d = getch()))
+    ungetch(d);
+  else if (!isdigit(c) && c != '.')
     return c; // not a number
   i = 0;
-  if (isdigit(c)) // collect integer part
+  if (isdigit(c) || c == '-') // collect integer part
     while (isdigit(s[++i] = c = getch()))
       ;
   if (c == '.') // collect fraction part
