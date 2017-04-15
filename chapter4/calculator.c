@@ -4,9 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h> /* for atof() */
 #include <ctype.h>
+#include <math.h>
 
 #define MAXOP 100 // max size of operand or operator
 #define NUMBER '0' // signal that a number was found
+#define VARASSIGN -3 // signal that a var is assigned
+#define VARUSE -2 // signal that a var is being used
+#define ANS -4 // signal for most recently used variable
 #define MAXVAL 100 // maximum depth of val stack
 #define BUFSIZE 100 // maximum size of buffer
 
@@ -14,6 +18,8 @@ char buf[BUFSIZE]; // buffer for ungetch
 int bufp = 0; // next free position in buf
 int sp = 0; // next free stack position
 double val[MAXVAL]; // stack
+double vars[27]; // array for vars: 0 is a, 25 is z, 26 is most recent ans
+
 int getch(void); // buffered character retrieval
 void ungetch(int); // buffered character 
 int getop(char []); // get op to handle
@@ -29,13 +35,30 @@ int main()
   int type;
   double op2;
   char s[MAXOP];
+  for (int i = 0; i < 27; i++)
+    vars[i] = 0;
 
   // printf("Type h to receive a list of commands\n");
   while ((type = getop(s)) != EOF) {
-    double i, top, next;
+    double i, top, next, recent;
+    char var;
     switch (type) {
     case NUMBER:
       push(atof(s));
+      break;
+    case VARASSIGN:
+      printf("VARASSIGN received\n");
+      // assign var
+      var = tolower(s[0]);
+      vars[var-'a'] = val[sp-1]; // read directly from the stack
+      break;
+    case VARUSE:
+      // push var
+      var = tolower(s[0]);
+      push(vars[var-'a']);
+      break;
+    case ANS:
+      push(vars[26]);
       break;
     case '+':
       push(pop() + pop());
@@ -61,23 +84,37 @@ int main()
       else
         printf("error: zero divisor\n");
       break;
-    case 'p': // print the stack
+    case '\"': // print the stack
       printstack(); 
       break;
-    case 'd': // duplicate the stack 
+    case '&': // duplicate the stack 
       dupstack();
       break;
-    case 's': // swap the top two stack elements
+    case '~': // swap the top two stack elements
       top = pop();
       next = pop();
       push(top);
       push(next);
       break;
-    case 'c': // clear the stack
+    case '\\': // clear the stack
       clearstack();
       break;
+    case ';':
+      // sin
+      break;
+    case ':':
+      // cos
+      break;
+    case '^':
+      // power
+      break;
+    case '{':
+      // root
+      break;
     case '\n':
-      printf("\t%.8g\n", pop());
+      recent = pop();
+      printf("\t%.8g\n", recent);
+      vars[26] = recent;
       break;
     default:
       printf("error: unknown command %s\n", s);
@@ -146,7 +183,17 @@ int getop(char s[])
   while((s[0] = c = getch()) == ' ' || c == '\t')
     ;
   s[1] = '\0';
-  if (c == '-' && isdigit(d = getch()))
+  if (c == '>' && isalpha(d = getch())) {
+    printf("variable assignment detected\n");
+    s[0] = d;
+    printf("returning s: %s\n", s);
+    return VARASSIGN;
+  }
+  else if (c == '<')
+    return ANS;
+  else if (isalpha(c))
+    return VARUSE;
+  else if (c == '-' && isdigit(d = getch()))
     ungetch(d);
   else if (!isdigit(c) && c != '.')
     return c; // not a number

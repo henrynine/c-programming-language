@@ -1,9 +1,14 @@
 +, -, *, /, %: standard symbols
-p: print the stack
-d: duplicate the stack
-s: swap the top two stack elements
-c: clear the stack
-i: sin
-o: cos
-e: power
-r: root
+": print the stack
+&: duplicate the stack
+~: swap the top two stack elements
+\: clear the stack
+;: sin
+:: cos
+^: power
+{: root
+a-z: variables (case-insensitive)
+variable syntax: a variable at the end of the expression preceded by > stores 
+  the top stack value without popping it
+  ex: 4 5 + >a stores 9 in a while leaving 9 on the stack
+<: special variable for most recently printed value
