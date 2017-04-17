@@ -15,7 +15,7 @@
 #define BUFSIZE 100 // maximum size of buffer
 
 char buf[BUFSIZE]; // buffer for ungetch
-char single_buf; // buffer for later getch/ungetch
+int single_buf; // buffer for later getch/ungetch
 int bufp = 0; // next free position in buf
 int sp = 0; // next free stack position
 double val[MAXVAL]; // stack
