@@ -28,6 +28,7 @@ double pop(void); // pop from val stack
 void printstack(void); // print the whole stack
 void dupstack(void); // duplicate the stack
 void clearstack(void); // clear the stack
+void ungets(char []); // push a string onto input
 
 /* reverse Polish calculator */
 int main() 
@@ -221,4 +222,12 @@ void ungetch(int c) // push character back on input
     printf("ungetch: too many characters\n");
   else
     buf[bufp++] = c;
+}
+
+void ungets(char s[]) // push string back onto input
+{
+  int i = 0;
+  while (s[i] != '\0') {
+    ungetch(s[i++]);
+  }
 }
