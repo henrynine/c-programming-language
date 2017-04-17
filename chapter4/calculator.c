@@ -15,6 +15,7 @@
 #define BUFSIZE 100 // maximum size of buffer
 
 char buf[BUFSIZE]; // buffer for ungetch
+char single_buf; // buffer for later getch/ungetch
 int bufp = 0; // next free position in buf
 int sp = 0; // next free stack position
 double val[MAXVAL]; // stack
@@ -48,7 +49,6 @@ int main()
       push(atof(s));
       break;
     case VARASSIGN:
-      printf("VARASSIGN received\n");
       // assign var
       var = tolower(s[0]);
       vars[var-'a'] = val[sp-1]; // read directly from the stack
@@ -185,9 +185,7 @@ int getop(char s[])
     ;
   s[1] = '\0';
   if (c == '>' && isalpha(d = getch())) {
-    printf("variable assignment detected\n");
     s[0] = d;
-    printf("returning s: %s\n", s);
     return VARASSIGN;
   }
   else if (c == '<')
@@ -211,6 +209,7 @@ int getop(char s[])
   return NUMBER;
 }
 
+/* OLD VERSION
 int getch(void) // get a (possibly pushed-back) character 
 {
   return (bufp > 0) ? buf[--bufp] : getchar();
@@ -222,6 +221,21 @@ void ungetch(int c) // push character back on input
     printf("ungetch: too many characters\n");
   else
     buf[bufp++] = c;
+}
+OLD VERSION */
+
+// POST 4-8
+int getch(void)
+{
+  char r;
+  r = (single_buf > 0) ? single_buf : getchar();
+  single_buf = 0;
+  return r;
+}
+
+void ungetch(int c)
+{
+  single_buf = c;
 }
 
 void ungets(char s[]) // push string back onto input
